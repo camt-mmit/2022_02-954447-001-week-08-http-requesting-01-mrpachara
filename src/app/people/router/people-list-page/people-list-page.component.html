@@ -1,0 +1,10 @@
+<app-people-list
+  *ngIf="data$ | async as data; else loading"
+  [data]="data"
+  [search]="searchData"
+  (searchChange)="search($event)"
+></app-people-list>
+
+<ng-template #loading>
+  <div>Loading...</div>
+</ng-template>
