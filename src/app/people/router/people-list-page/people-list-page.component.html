@@ -3,6 +3,7 @@
   [data]="data"
   [search]="searchData"
   (searchChange)="search($event)"
+  (select)="doSelect($event)"
 ></app-people-list>
 
 <ng-template #loading>

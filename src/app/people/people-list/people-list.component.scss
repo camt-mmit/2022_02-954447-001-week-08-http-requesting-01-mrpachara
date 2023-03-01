@@ -1,0 +1,51 @@
+.cmp-search-form {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+
+  margin-bottom: 8px;
+
+  & > label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    flex: 1 0 auto;
+
+    & > input {
+      margin-left: 1ch;
+      box-sizing: border-box;
+      height: 100%;
+      flex: 1 0 auto;
+    }
+  }
+}
+
+.cmp-pagination {
+  display: flex;
+  flex-direction: row;
+
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: 8px;
+
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.cmp-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+
+  & > * {
+    padding: 16px 8px;
+
+    &:hover {
+      background-color: rgba(128, 128, 128, 0.25);
+      cursor: pointer;
+    }
+  }
+}

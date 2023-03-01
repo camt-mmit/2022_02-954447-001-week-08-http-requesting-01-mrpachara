@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PeopleListComponent } from '../../people-list/people-list.component';
 import { List, Person, SearchData } from 'src/app/models';
 import { PeopleService } from '../../people.service';
-import { Observable, switchMap } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -16,23 +16,34 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class PeopleListPageComponent {
   protected readonly data$: Observable<List<Person>>;
 
-  protected searchData: SearchData;
+  protected searchData: SearchData | undefined;
 
   constructor(
     dataService: PeopleService,
-    route: ActivatedRoute,
+    private readonly route: ActivatedRoute,
     private readonly router: Router,
   ) {
-    //this.data$ = dataService.getAll({ page: '3' });
-    this.searchData = route.snapshot.queryParams;
-    this.data$ = route.queryParams.pipe(
-      switchMap((params) => dataService.getAll(params)),
+    this.data$ = this.route.queryParams.pipe(
+      switchMap((params) =>
+        dataService.getAll(params).pipe(map((data) => [params, data] as const)),
+      ),
+      map(([params, data]) => {
+        this.searchData = params;
+        return data;
+      }),
     );
   }
 
   protected search(searchData: SearchData): void {
     this.router.navigate([], {
       queryParams: searchData,
+      replaceUrl: true,
+    });
+  }
+
+  protected doSelect(id: string): void {
+    this.router.navigate([id], {
+      relativeTo: this.route,
     });
   }
 }

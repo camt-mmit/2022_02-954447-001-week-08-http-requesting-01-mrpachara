@@ -1,25 +1,54 @@
-<form [formGroup]="formGroup" (ngSubmit)="doSearch()">
+<form [formGroup]="formGroup" (ngSubmit)="doSearch()" class="cmp-search-form">
   <label>
     <b>Search</b>
     <input type="text" formControlName="search" />
   </label>
-  <button type="submit">Search</button>
+  <button type="button" class="cl-warn" (click)="doClear()">
+    <i class="material-symbols-outlined">clear</i>
+  </button>
+  <button type="submit" class="cl-primary">
+    <i class="material-symbols-outlined">search</i>
+  </button>
 </form>
-<button
-  type="button"
-  [disabled]="!data.previous"
-  (click)="page(data.previous?.searchParams)"
->
-  Previous
-</button>
-<button
-  type="next"
-  [disabled]="!data.next"
-  (click)="page(data.next?.searchParams)"
->
-  Next
-</button>
 
-<div *ngFor="let item of data.results">
-  {{ item.name }}
-</div>
+<nav class="cmp-pagination">
+  <div>
+    <b>Item(s) : </b>
+    <span class="cl-number">
+      <span *ngIf="data.count">
+        [{{ pageOffset + 1 | number }} -
+        {{ pageOffset + data.results.length | number }}]<b>/</b>
+      </span>
+      <span>{{ data.count | number }}</span>
+    </span>
+  </div>
+  <button
+    type="button"
+    role="link"
+    [disabled]="!data.previous"
+    (click)="changePage(data.previous?.searchParams)"
+  >
+    <i class="material-symbols-outlined">navigate_before</i>
+    Previous
+  </button>
+  <button
+    type="next"
+    role="link"
+    [disabled]="!data.next"
+    (click)="changePage(data.next?.searchParams)"
+  >
+    Next
+    <i class="material-symbols-outlined">navigate_next</i>
+  </button>
+</nav>
+
+<ul class="cmp-list">
+  <li
+    *ngFor="let item of data.results"
+    tabindex="0"
+    (click)="doSelect(item.url)"
+    (keydown.enter)="doSelect(item.url)"
+  >
+    {{ item.name }}
+  </li>
+</ul>

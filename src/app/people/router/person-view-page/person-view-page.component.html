@@ -1,0 +1,7 @@
+<nav>
+  <button type="button" (click)="doBack()" role="link">
+    <i class="material-symbols-outlined">navigate_before</i>
+    Back
+  </button>
+</nav>
+<app-person-view *ngIf="data$ | async as data" [data]="data"></app-person-view>

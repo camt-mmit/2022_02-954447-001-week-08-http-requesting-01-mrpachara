@@ -1,0 +1,23 @@
+dl {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  row-gap: 16px;
+
+  & > * {
+    margin: 0px;
+  }
+}
+
+dt {
+  font-weight: bold;
+  text-align: right;
+
+  color: var(--color-primary);
+
+  &::after {
+    content: '::';
+    padding-left: 1ch;
+    padding-right: 1ch;
+  }
+}

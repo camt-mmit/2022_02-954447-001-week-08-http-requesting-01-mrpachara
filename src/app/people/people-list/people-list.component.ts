@@ -20,7 +20,9 @@ import { debounceTime, Subscription } from 'rxjs';
 export class PeopleListComponent implements OnInit {
   @Input() data!: List<Person>;
   @Input() search?: SearchData;
+
   @Output() searchChange = new EventEmitter<SearchData>();
+  @Output() select = new EventEmitter<string>();
 
   protected formGroup!: FormGroup<{
     search: FormControl<string>;
@@ -42,11 +44,26 @@ export class PeopleListComponent implements OnInit {
     });
   }
 
-  protected doSearch(): void {
-    this.searchChange.emit(this.formGroup.value);
+  protected get pageOffset(): number {
+    return (+(this.search?.page ?? 1) - 1) * 10;
   }
 
-  protected page(searchParams?: URLSearchParams): void {
+  protected doSearch(): void {
+    const value = this.formGroup.value;
+
+    if (!!value.search) {
+      this.searchChange.emit(this.formGroup.value);
+    } else {
+      this.doClear();
+    }
+  }
+
+  protected doClear(): void {
+    this.formGroup.setValue({ search: '' });
+    this.searchChange.emit({});
+  }
+
+  protected changePage(searchParams?: URLSearchParams): void {
     const searchData = searchParams
       ? {
           ...(searchParams.get('search')
@@ -58,5 +75,12 @@ export class PeopleListComponent implements OnInit {
         }
       : {};
     this.searchChange.emit(searchData);
+  }
+
+  protected doSelect(url: URL): void {
+    const id = url.pathname.replace(/\/$/, '').split('/').pop();
+    if (!!id) {
+      this.select.emit(id);
+    }
   }
 }
