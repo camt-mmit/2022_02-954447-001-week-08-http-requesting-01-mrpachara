@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -16,12 +16,12 @@ import { List, Person, SearchData } from '../../models';
   templateUrl: './people-list.component.html',
   styleUrls: ['./people-list.component.scss'],
 })
-export class PeopleListComponent {
+export class PeopleListComponent implements OnInit {
   @Input() data!: List<Person>;
   @Input() search?: SearchData;
 
   @Output() searchChange = new EventEmitter<SearchData>();
-  @Output() select = new EventEmitter<string>();
+  @Output() itemSelected = new EventEmitter<string>();
 
   protected formGroup!: FormGroup<{
     search: FormControl<string>;
@@ -50,7 +50,7 @@ export class PeopleListComponent {
   protected doSearch(): void {
     const value = this.formGroup.value;
 
-    if (!!value.search) {
+    if (value.search) {
       this.searchChange.emit(this.formGroup.value);
     } else {
       this.doClear();
@@ -63,23 +63,21 @@ export class PeopleListComponent {
   }
 
   protected changePage(searchParams?: URLSearchParams): void {
-    const searchData = searchParams
-      ? {
-          ...(searchParams.get('search')
-            ? { search: searchParams.get('search')! }
-            : {}),
-          ...(searchParams.get('page')
-            ? { page: searchParams.get('page')! }
-            : {}),
-        }
-      : {};
+    const search = searchParams?.get('search');
+    const page = searchParams?.get('page');
+
+    const searchData = {
+      ...(search ? { search } : {}),
+      ...(page ? { page } : {}),
+    };
+
     this.searchChange.emit(searchData);
   }
 
   protected doSelect(url: URL): void {
     const id = url.pathname.replace(/\/$/, '').split('/').pop();
-    if (!!id) {
-      this.select.emit(id);
+    if (id) {
+      this.itemSelected.emit(id);
     }
   }
 }

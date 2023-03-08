@@ -8,9 +8,8 @@ describe('StarWarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ StarWarComponent ]
-    })
-    .compileComponents();
+      imports: [StarWarComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(StarWarComponent);
     component = fixture.componentInstance;

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Person } from '../../models';
 
@@ -9,7 +9,7 @@ import { Person } from '../../models';
   templateUrl: './person-view.component.html',
   styleUrls: ['./person-view.component.scss'],
 })
-export class PersonViewComponent {
+export class PersonViewComponent implements OnInit {
   @Input() data!: Person;
 
   ngOnInit(): void {

@@ -3,7 +3,7 @@
   [data]="data"
   [search]="searchData"
   (searchChange)="search($event)"
-  (select)="doSelect($event)"
+  (itemSelected)="doSelect($event)"
 ></star-war-people-list>
 
 <ng-template #loading>

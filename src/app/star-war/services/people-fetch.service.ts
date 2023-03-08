@@ -8,8 +8,6 @@ const url = 'https://swapi.dev/api/people';
   providedIn: 'root',
 })
 export class PeopleFetchService {
-  constructor() {}
-
   // getAll(): Promise<List<Person>> {
   //   return fetch(url)
   //     .then((res) => res.json())
