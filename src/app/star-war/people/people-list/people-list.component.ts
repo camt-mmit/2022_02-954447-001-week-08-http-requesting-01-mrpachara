@@ -1,6 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { List, Person, SearchData } from 'src/app/models';
 import {
   FormBuilder,
   FormControl,
@@ -8,16 +7,16 @@ import {
   NonNullableFormBuilder,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { debounceTime, Subscription } from 'rxjs';
+import { List, Person, SearchData } from '../../models';
 
 @Component({
-  selector: 'app-people-list',
+  selector: 'star-war-people-list',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './people-list.component.html',
   styleUrls: ['./people-list.component.scss'],
 })
-export class PeopleListComponent implements OnInit {
+export class PeopleListComponent {
   @Input() data!: List<Person>;
   @Input() search?: SearchData;
 

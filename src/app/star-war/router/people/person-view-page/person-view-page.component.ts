@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PeopleService } from '../../people.service';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, switchMap } from 'rxjs';
-import { Person } from 'src/app/models';
-import { PersonViewComponent } from '../../person-view/person-view.component';
+
+import { PersonViewComponent } from '../../../people/person-view/person-view.component';
+import { Person } from '../../../models';
+import { PeopleService } from '../../../services/people.service';
 
 @Component({
-  selector: 'app-person-view-page',
+  selector: 'star-war-person-view-page',
   standalone: true,
   imports: [CommonModule, PersonViewComponent],
   templateUrl: './person-view-page.component.html',

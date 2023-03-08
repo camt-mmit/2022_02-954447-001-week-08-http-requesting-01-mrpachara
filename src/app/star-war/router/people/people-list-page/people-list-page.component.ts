@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PeopleListComponent } from '../../people-list/people-list.component';
-import { List, Person, SearchData } from 'src/app/models';
-import { PeopleService } from '../../people.service';
-import { map, Observable, switchMap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { map, Observable, switchMap } from 'rxjs';
+
+import { PeopleListComponent } from '../../../people/people-list/people-list.component';
+import { List, Person, SearchData } from '../../../models';
+import { PeopleService } from '../../../services/people.service';
 
 @Component({
-  selector: 'app-people-list-page',
+  selector: 'star-war-people-list-page',
   standalone: true,
   imports: [CommonModule, PeopleListComponent],
   templateUrl: './people-list-page.component.html',

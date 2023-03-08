@@ -1,16 +1,10 @@
-import { Routes } from '@angular/router';
-import { PeopleListPageComponent } from './app/people/router/people-list-page/people-list-page.component';
-import { PeopleComponent } from './app/people/router/people/people.component';
-import { PersonViewPageComponent } from './app/people/router/person-view-page/person-view-page.component';
+import { Route } from '@angular/router';
 
-export const routes: Routes = [
-  { path: '', redirectTo: 'people', pathMatch: 'full' },
+export const routes: Route[] = [
+  { path: '', redirectTo: 'star-war', pathMatch: 'full' },
   {
-    path: 'people',
-    component: PeopleComponent,
-    children: [
-      { path: '', component: PeopleListPageComponent },
-      { path: ':id', component: PersonViewPageComponent },
-    ],
+    path: 'star-war',
+    loadChildren: () =>
+      import('./app/star-war/routes').then((mod) => mod.routes),
   },
 ];

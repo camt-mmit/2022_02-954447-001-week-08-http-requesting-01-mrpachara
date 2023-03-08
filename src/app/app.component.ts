@@ -9,5 +9,5 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'my-sw';
+  title = 'my-api-app';
 }

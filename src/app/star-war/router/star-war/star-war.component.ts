@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-people',
+  selector: 'star-war-root',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './people.component.html',
-  styleUrls: ['./people.component.scss'],
+  templateUrl: './star-war.component.html',
+  styleUrls: ['./star-war.component.scss'],
 })
-export class PeopleComponent {}
+export class StarWarComponent {}
