@@ -1,0 +1,25 @@
+<ng-container [ngSwitch]="tokenReady$ | async">
+  <ng-container *ngSwitchCase="true">
+    <div class="cmp-actions">
+      <span class="cl-filler"></span>
+      <button type="button" (click)="forecTokenExpired()" class="cl-accent">
+        <i class="material-symbols-outlined">refresh</i>
+        Expire Access Token
+      </button>
+      <button type="button" (click)="deleteToken()" class="cl-warn">
+        <i class="material-symbols-outlined">delete_forever</i>
+        Delete Access Token
+      </button>
+    </div>
+    <router-outlet></router-outlet>
+  </ng-container>
+
+  <div *ngSwitchCase="false" class="cmp-actions">
+    <button type="button" (click)="login()" class="cl-primary">
+      <i class="material-symbols-outlined">login</i>
+      Login to Google
+    </button>
+  </div>
+
+  <div *ngSwitchDefault>Loading...</div>
+</ng-container>

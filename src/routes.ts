@@ -7,4 +7,8 @@ export const routes: Route[] = [
     loadChildren: () =>
       import('./app/star-war/routes').then((mod) => mod.routes),
   },
+  {
+    path: 'google',
+    loadChildren: () => import('./app/google/routes').then((mod) => mod.routes),
+  },
 ];

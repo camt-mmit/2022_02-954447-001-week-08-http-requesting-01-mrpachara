@@ -1,0 +1,6 @@
+<nav class="cmp-list">
+  <a *ngFor="let item of data.items" [href]="item.htmlLink" target="_blank">
+    {{ item.summary }}
+    <span class="cmp-list-item-second">{{ displayEventTimeRange(item) }}</span>
+  </a>
+</nav>

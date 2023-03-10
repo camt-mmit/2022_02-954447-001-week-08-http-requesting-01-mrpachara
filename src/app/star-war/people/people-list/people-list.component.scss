@@ -32,20 +32,3 @@
   padding-top: 8px;
   padding-bottom: 8px;
 }
-
-.cmp-list {
-  display: flex;
-  flex-direction: column;
-  margin: 0px;
-  padding: 0px;
-  list-style: none;
-
-  & > * {
-    padding: 16px 8px;
-
-    &:hover {
-      background-color: rgba(128, 128, 128, 0.25);
-      cursor: pointer;
-    }
-  }
-}
