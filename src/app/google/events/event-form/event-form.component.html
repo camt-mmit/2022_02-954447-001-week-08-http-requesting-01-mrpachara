@@ -3,16 +3,19 @@
   <input type="text" id="inp-summary" formControlName="summary" />
 
   <ng-container formGroupName="start">
-    <label for="inp-start">Summary</label>
+    <label for="inp-start">Start</label>
     <input type="datetime-local" id="inp-start" formControlName="dateTime" />
   </ng-container>
 
   <ng-container formGroupName="end">
-    <label for="inp-end">Summary</label>
+    <label for="inp-end">End</label>
     <input type="datetime-local" id="inp-end" formControlName="dateTime" />
   </ng-container>
 
   <div class="form-actions">
-    <button type="submit">Save</button>
+    <button type="submit">
+      <i class="material-symbols-outlined">save</i>
+      Save
+    </button>
   </div>
 </form>
