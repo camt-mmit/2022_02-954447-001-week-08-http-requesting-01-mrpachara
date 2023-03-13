@@ -1,0 +1,18 @@
+<form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+  <label for="inp-summary">Summary</label>
+  <input type="text" id="inp-summary" formControlName="summary" />
+
+  <ng-container formGroupName="start">
+    <label for="inp-start">Summary</label>
+    <input type="datetime-local" id="inp-start" formControlName="dateTime" />
+  </ng-container>
+
+  <ng-container formGroupName="end">
+    <label for="inp-end">Summary</label>
+    <input type="datetime-local" id="inp-end" formControlName="dateTime" />
+  </ng-container>
+
+  <div class="form-actions">
+    <button type="submit">Save</button>
+  </div>
+</form>

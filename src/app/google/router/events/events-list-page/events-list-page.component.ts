@@ -5,11 +5,12 @@ import { EventsService } from 'src/app/google/services/events.service';
 import { Observable } from 'rxjs';
 
 import { EventsList } from '../../../models';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'google-events-list-page',
   standalone: true,
-  imports: [CommonModule, EventsListComponent],
+  imports: [CommonModule, RouterModule, EventsListComponent],
   templateUrl: './events-list-page.component.html',
   styleUrls: ['./events-list-page.component.scss'],
 })

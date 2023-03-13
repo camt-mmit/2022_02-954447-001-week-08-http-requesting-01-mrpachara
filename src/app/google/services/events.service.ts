@@ -2,7 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable, switchMap } from 'rxjs';
 
-import { EventQueryParams, EventsList, parseEventsList } from '../models';
+import {
+  EventCreatingData,
+  EventQueryParams,
+  EventResource,
+  EventsList,
+  parseEventResource,
+  parseEventsList,
+} from '../models';
 import { TokenService } from './token.service';
 
 const eventsUrl =
@@ -19,16 +26,28 @@ export class EventsService {
 
   getAll(params?: EventQueryParams): Observable<EventsList> {
     return this.tokenService.getAuthorizationHeader().pipe(
-      switchMap((authorizationHeader) => {
-        return this.http
-          .get<EventsList>(eventsUrl, {
-            headers: {
-              Authorization: authorizationHeader,
-            },
-            params: params,
-          })
-          .pipe(map(parseEventsList));
-      }),
+      switchMap((authorizationHeader) =>
+        this.http.get<EventsList>(eventsUrl, {
+          headers: {
+            Authorization: authorizationHeader,
+          },
+          params: params,
+        }),
+      ),
+      map(parseEventsList),
+    );
+  }
+
+  create(data: EventCreatingData): Observable<EventResource> {
+    return this.tokenService.getAuthorizationHeader().pipe(
+      switchMap((authorizationHeader) =>
+        this.http.post<EventResource>(eventsUrl, data, {
+          headers: {
+            Authorization: authorizationHeader,
+          },
+        }),
+      ),
+      map(parseEventResource),
     );
   }
 }

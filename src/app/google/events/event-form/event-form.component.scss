@@ -1,0 +1,10 @@
+form {
+  display: grid;
+  grid-template-columns: auto 1fr;
+
+  & > label {
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+  }
+}

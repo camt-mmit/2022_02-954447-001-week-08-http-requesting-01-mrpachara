@@ -1,3 +1,11 @@
+<nav>
+  <ul class="cmp-nav-links">
+    <li>
+      <a routerLink="create">Create</a>
+    </li>
+  </ul>
+</nav>
+
 <google-events-list
   *ngIf="data$ | async as data; else loading"
   [data]="data"
