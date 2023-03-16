@@ -39,11 +39,31 @@ export class AccessTokenNotFound extends Error {
   }
 }
 
+export interface KeyValueStorage {
+  loadData<T>(key: string): Promise<T | null>;
+  storeData<T>(key: string, value: T): Promise<void>;
+  removeData(key: string): Promise<void>;
+  loadKeys(): Promise<string[]>;
+}
+
+export const KeyValueStorageToken = new InjectionToken<KeyValueStorage>(
+  'Key-Value storage',
+);
+
 export class SecurityTokenNotFound extends Error {
   override stack = new Error().stack;
   override name = this.constructor.name;
 
   constructor(securityToken: string, options?: ErrorOptions) {
     super(`Security token ${securityToken} is not found or expired!!`, options);
+  }
+}
+
+export class AuthorizationResponseError extends Error {
+  override stack = new Error().stack;
+  override name = this.constructor.name;
+
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
   }
 }

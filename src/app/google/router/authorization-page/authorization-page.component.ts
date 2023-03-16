@@ -22,27 +22,24 @@ export class AuthorizationPageComponent implements OnInit {
 
   ngOnInit(): void {
     const queryParams = this.route.snapshot.queryParams;
+    const code = queryParams['code'];
     const securityToken = new URLSearchParams(queryParams['state']).get(
       'security_token',
     );
 
-    if (queryParams['code'] && securityToken) {
+    if (code && securityToken) {
       this.tokenService
-        .exchangeCodeForToken(
-          queryParams['code'],
-          securityToken,
-          queryParams['error'],
-        )
+        .exchangeCodeForToken(code, securityToken, queryParams['error'])
         .pipe(take(1))
         .subscribe({
           next: (stateData) => this.router.navigateByUrl(stateData.redirectUrl),
           error: (err) => {
             if (err.error?.error) {
-              this.errorMessage = err.error?.error;
+              this.errorMessage = `${err.error.error}`;
             } else if (err instanceof Error) {
               this.errorMessage = err.message;
             } else {
-              this.errorMessage = err;
+              this.errorMessage = `${err}`;
             }
           },
         });

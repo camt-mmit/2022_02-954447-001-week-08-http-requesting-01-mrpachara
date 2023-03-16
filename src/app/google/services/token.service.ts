@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import {
   BehaviorSubject,
   debounceTime,
+  defer,
   distinctUntilChanged,
   from,
   map,
@@ -17,13 +18,29 @@ import {
 
 import {
   AccessTokenNotFound,
+  AuthorizationResponseError,
   Configuration as GoogleConfiguration,
   ConfigurationToken as GoogleConfigurationToken,
+  KeyValueStorage,
+  KeyValueStorageToken,
   SecurityTokenNotFound,
   StateData,
   TokenData,
 } from '../models';
 import { arrayBufferToBase64, randomString, sha256 } from '../utils';
+
+type AvailableTokenResult =
+  | {
+      type: 'none';
+    }
+  | {
+      type: 'available';
+      tokenData: TokenData;
+    }
+  | {
+      type: 'refresh';
+      refreshToken: string;
+    };
 
 const tokenKeyName = 'google-token';
 const stateKeyPrefix = 'google-state-';
@@ -44,9 +61,12 @@ export class TokenService {
   private readonly tokenReadySubject = new BehaviorSubject<boolean | null>(
     null,
   );
-  readonly tokenReady$ = this.tokenReadySubject
-    .asObservable()
-    .pipe(debounceTime(100), distinctUntilChanged());
+  readonly tokenReady$ = this.tokenReadySubject.asObservable().pipe(
+    // NOTE: To prevent NG0100: Expression has changed after it was checked.
+    //       @see {@link https://angular.io/errors/NG0100}
+    debounceTime(100),
+    distinctUntilChanged(),
+  );
 
   private readonly storeTokenDataPipe = pipe(
     switchMap((tokenData: TokenData) => from(this.storeTokenData(tokenData))),
@@ -55,85 +75,69 @@ export class TokenService {
   constructor(
     @Inject(GoogleConfigurationToken)
     private readonly configuration: GoogleConfiguration,
+    @Inject(KeyValueStorageToken)
+    private readonly storage: KeyValueStorage,
     private readonly http: HttpClient,
     private readonly router: Router,
   ) {
-    from(this.getAvailableTokenData()).subscribe(({ available, tokenData }) => {
+    this.getAvailableToken().then((result) => {
       // NOTE: To prevent race condition
       if (this.tokenReadySubject.value === null) {
-        this.tokenReadySubject.next(
-          available || tokenData?.refresh_token !== undefined,
-        );
+        this.tokenReadySubject.next(result.type !== 'none');
       }
     });
-  }
-
-  private async loadData<T>(key: string): Promise<T | null> {
-    return JSON.parse(localStorage.getItem(key) ?? 'null');
-  }
-
-  private async storeData<T>(key: string, value: T): Promise<void> {
-    return localStorage.setItem(key, JSON.stringify(value));
-  }
-
-  private async removeData(key: string): Promise<void> {
-    return localStorage.removeItem(key);
-  }
-
-  private async loadKeys(): Promise<string[]> {
-    const results: string[] = [];
-
-    for (let i = 0; i < localStorage.length; i++) {
-      results.push(localStorage.key(i) ?? '');
-    }
-
-    return results;
   }
 
   private async loadStateData(
     securityToken: string,
   ): Promise<StateData | null> {
     const currentTime = Date.now();
-    const keyName = `${stateKeyPrefix}${securityToken}`;
 
-    for (const key of await this.loadKeys()) {
+    for (const key of await this.storage.loadKeys()) {
       if (key.startsWith(stateKeyPrefix)) {
-        const storedStateData = await this.loadData<StateData>(key);
+        const storedStateData = await this.storage.loadData<StateData>(key);
 
         if ((storedStateData?.expiredAt ?? 0) <= currentTime) {
-          this.removeData(key);
+          this.storage.removeData(key);
         }
       }
     }
 
-    return this.loadData(keyName);
+    return this.storage.loadData(`${stateKeyPrefix}${securityToken}`);
   }
 
   private async storeStateData(
     securityToken: string,
     stateData: StateData,
   ): Promise<StateData> {
-    const storedStateData: StateData = {
-      ...stateData,
-      expiredAt: Date.now() + stateTTL,
-    };
+    const currentTime = Date.now();
+    const storedStateData = { ...stateData };
 
-    await this.storeData(`${stateKeyPrefix}${securityToken}`, storedStateData);
+    if (storedStateData.expiredAt === undefined) {
+      storedStateData.expiredAt = currentTime + stateTTL;
+    }
+
+    await this.storage.storeData(
+      `${stateKeyPrefix}${securityToken}`,
+      storedStateData,
+    );
     return storedStateData;
   }
 
   private async removeStateData(
     securityToken: string,
   ): Promise<StateData | null> {
-    const stateData = await this.loadStateData(securityToken);
-    await this.removeData(`${stateKeyPrefix}${securityToken}`);
-    return stateData;
+    const existingStateData = await this.loadStateData(securityToken);
+    await this.storage.removeData(`${stateKeyPrefix}${securityToken}`);
+    return existingStateData;
   }
 
   private async loadTokenData(): Promise<TokenData | null> {
-    const tokenData = await this.loadData<TokenData>(tokenKeyName);
+    const existingTokenData = await this.storage.loadData<TokenData>(
+      tokenKeyName,
+    );
 
-    return tokenData;
+    return existingTokenData;
   }
 
   private async storeTokenData(tokenData: TokenData): Promise<TokenData> {
@@ -155,13 +159,13 @@ export class TokenService {
         currentTime + storedTokenData.expires_in * 1_000 - networkLatency;
     }
 
-    await this.storeData(tokenKeyName, storedTokenData);
+    await this.storage.storeData(tokenKeyName, storedTokenData);
     this.tokenReadySubject.next(true);
     return storedTokenData;
   }
 
   private async removeTokenData(): Promise<void> {
-    await this.removeData(tokenKeyName);
+    await this.storage.removeData(tokenKeyName);
     this.tokenReadySubject.next(false);
   }
 
@@ -181,10 +185,10 @@ export class TokenService {
     securityToken: string,
     errorMessage?: string,
   ): Observable<StateData> {
-    return from(this.removeStateData(securityToken)).pipe(
+    return defer(() => from(this.removeStateData(securityToken))).pipe(
       switchMap((stateData) => {
         if (errorMessage) {
-          return throwError(() => errorMessage);
+          return throwError(() => new AuthorizationResponseError(errorMessage));
         }
 
         return of(stateData);
@@ -214,7 +218,7 @@ export class TokenService {
   getAuthorizationLink(): Observable<URL> {
     const verifierCode = randomString(randomStringLength);
 
-    return from(sha256(verifierCode)).pipe(
+    return defer(() => from(sha256(verifierCode))).pipe(
       map((sha256) => arrayBufferToBase64(sha256, true)),
       switchMap((challengeCode) => {
         const securityToken = randomString(securityTokenLength);
@@ -259,30 +263,41 @@ export class TokenService {
     );
   }
 
-  private getAvailableTokenData(): Observable<{
-    available: boolean;
-    tokenData: TokenData | null;
-  }> {
-    return from(this.loadTokenData()).pipe(
-      map((tokenData) => {
-        const currentTime = Date.now();
+  private async getAvailableToken(): Promise<AvailableTokenResult> {
+    const tokenData = await this.loadTokenData();
+    const currentTime = Date.now();
 
+    if (tokenData) {
+      if ((tokenData.expiredAt ?? 0) > currentTime) {
         return {
-          available: (tokenData?.expiredAt ?? 0) > currentTime,
+          type: 'available',
           tokenData: tokenData,
         };
-      }),
-    );
+      }
+
+      if (tokenData.refresh_token !== undefined) {
+        return {
+          type: 'refresh',
+          refreshToken: tokenData.refresh_token,
+        };
+      }
+    }
+
+    return { type: 'none' };
   }
 
   private tryGetTokenData(): Observable<TokenData | null> {
-    return from(this.getAvailableTokenData()).pipe(
-      switchMap(({ available, tokenData }) => {
-        if (!available && tokenData?.refresh_token === undefined) {
-          return of(null);
-        } else {
-          return this.refreshTokenData(tokenData?.refresh_token ?? '');
+    return defer(() => from(this.getAvailableToken())).pipe(
+      switchMap((result) => {
+        if (result.type === 'available') {
+          return of(result.tokenData);
         }
+
+        if (result.type === 'refresh') {
+          return this.refreshTokenData(result.refreshToken);
+        }
+
+        return of(null);
       }),
       share(),
     );

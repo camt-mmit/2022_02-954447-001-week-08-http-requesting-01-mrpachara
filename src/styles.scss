@@ -17,6 +17,10 @@
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }
 
+:root {
+  overflow-y: scroll;
+}
+
 button,
 .cl-action {
   display: inline-flex;
@@ -118,6 +122,21 @@ input[type='number'] {
       font-size: smaller;
       padding-left: 16px;
     }
+  }
+}
+
+.cmp-form-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  row-gap: 8px;
+  margin-bottom: 16px;
+
+  & > label {
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+
+    margin-right: 1ch;
   }
 }
 

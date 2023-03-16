@@ -21,4 +21,8 @@ export class EventCreatePageComponent {
       .pipe(take(1))
       .subscribe(() => history.back());
   }
+
+  onCancel(): void {
+    history.back();
+  }
 }

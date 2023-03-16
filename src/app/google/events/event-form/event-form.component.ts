@@ -21,6 +21,7 @@ export class EventFormComponent implements OnInit {
   @Input() data: EventResource | null = null;
 
   @Output() dataSubmited = new EventEmitter<EventCreatingData>();
+  @Output() cancel = new EventEmitter<void>();
 
   private readonly fb: NonNullableFormBuilder;
 
@@ -91,5 +92,9 @@ export class EventFormComponent implements OnInit {
       };
       this.dataSubmited.emit(newValue);
     }
+  }
+
+  protected doCancel(): void {
+    this.cancel.emit();
   }
 }
